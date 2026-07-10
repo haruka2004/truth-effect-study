@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja" translate="no" class="notranslate"> 
+<head>
+  <meta charset="UTF-8">
+  <meta name="google" content="notranslate">  
+  <title>SNSにおけるテキスト情報の視認性と読みやすさに関する調査</title>
+  
+  <script src="https://unpkg.com/jspsych@7.3.4"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+  <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+  <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+  
+  <style>
+    /* 実験画面全体のデザイン調整 */
+    .jspsych-content { font-size: 16px; max-width: 850px; text-align: left; line-height: 1.6; }
+    .center-box { text-align: center; }
+    .instruction-title { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; text-align: center; }
+    .section-title { font-weight: bold; margin-top: 20px; font-size: 18px; color: #2c3e50; }
+    .stimulus-text { font-size: 24px; font-weight: bold; margin: 40px 0; text-align: center; color: #111; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+    .alert-text { color: #c0392b; font-weight: bold; }
+    
+    /* 質問文のフォントサイズを少し大きく設定 */
+    .question-text {
+      font-size: 19px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    /* ボタンの大きさを完全に統一するためのスタイル修正 */
+    .jspsych-btn { 
+      margin: 5px !important; 
+      padding: 10px 5px !important; 
+      font-size: 14px !important; 
+      width: 110px !important;
+      height: 90px !important;      
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      text-align: center !important;
+      line-height: 1.3 !important;
+    }
+    
+    /* ボタンをまっすぐ綺麗に横一列に並べる設定 */
+    .jspsych-btn-group {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: center !important;
+      align-items: center !important;
+      flex-wrap: nowrap !important;
+      margin-top: 20px;
+    }
+
+    /* 改行テキストの微調整 */
+    .btn-label {
+      font-size: 11px;
+      display: block;
+      margin-top: 3px;
+    }
+    
+    /* 導入や教示画面用の単一ボタンは例外的に横幅を自動にする */
+    .instruction-btn .jspsych-btn {
+      width: auto !important;
+      height: auto !important;
+      padding: 12px 24px !important;
+      font-size: 16px !important;
+    }
+    
+    /* 遅延表示用のスタイル */
+    .button-area { transition: opacity 0.5s ease; opacity: 1; }
+    .hidden { display: none; opacity: 0; }
+
+    /* 妨害課題用のカラーパレットスタイル */
+    .color-box { display: inline-block; width: 80px; height: 80px; margin: 10px; border: 2px solid #333; border-radius: 8px; }
+  </style>
+</head>
+<body></body>
+<script>
+
+  // ==========================================
+  // 1. 初期化とデータの自動ダウンロード設定
+  // ==========================================
+  const jsPsych = initJsPsych({
+    on_finish: function() {
+      jsPsych.data.get().filter({phase: 'test'}).localSave('csv', 'truth_effect_data.csv');
+    }
+  });
+
+  document.body.classList.add('notranslate');
+  document.body.setAttribute('translate', 'no');
+
+  const participant_group = jsPsych.randomization.sampleWithReplacement(['X', 'Y'], 1)[0];
+  jsPsych.data.addProperties({ group: participant_group });
+
+  let timeline = [];
+
+  // ==========================================
+  // 2. 刺激材料（アイテム）の定義
+  // ==========================================
+  
+  // 真文（True）ブロックA：20個
+  const true_items_A = [
+    { id: "T_A_01", statement: "世界で17番目に深い湖は日本の田沢湖である。", type: "true", set: "A" },
+    { id: "T_A_02", statement: "キリンの鳴き声は、牛のような「モー」という声である。", type: "true", set: "A" },
+    { id: "T_A_03", statement: "フラミンゴのミルク（ピジョンミルク）は赤色をしている。", type: "true", set: "A" },
+    { id: "T_A_04", statement: "バチカン市国には、国営のATMが1台だけ存在する。", type: "true", set: "A" },
+    { id: "T_A_05", statement: "カタツムリには、約1万本以上の細かい歯が生えている。", type: "true", set: "A" },
+    { id: "T_A_06", statement: "トランプのキングの中で、ハートのキングだけ口髭がない。", type: "true", set: "A" },
+    { id: "T_A_07", statement: "世界で最初にギネス記録に認定された食べ物はソーセージである。", type: "true", set: "A" },
+    { id: "T_A_08", statement: "イチゴは江戸時代末期にオランダ船によって持ち込まれた。", type: "true", set: "A" },
+    { id: "T_A_09", statement: "ダチョウの脳みそは、そのダチョウの目玉よりも小さい。", type: "true", set: "A" },
+    { id: "T_A_10", statement: "ホッキョクグマの皮膚は、毛の下では実は黒色である。", type: "true", set: "A" },
+    { id: "T_A_11", statement: "ナマケモノは、水の中に入ると意外にも泳ぐのが得意である。", type: "true", set: "A" },
+    { id: "T_A_12", statement: "世界で最も短い定期航空路線の飛行時間は約2分である。", type: "true", set: "A" },
+    { id: "T_A_13", statement: "ブロッコリーは、品種改良される前は野生のキャベツだった。", type: "true", set: "A" },
+    { id: "T_A_14", statement: "マッキンリー山は、2015年に正式名称がデナリに変更された。", type: "true", set: "A" },
+    { id: "T_A_15", statement: "コアラの指紋は、人間の指紋と顕微鏡で見ても区別がつきにくい。", type: "true", set: "A" },
+    { id: "T_A_16", statement: "エッフェル塔は、夏の暑さで全体の高さが最大15cm高くなる。", type: "true", set: "A" },
+    { id: "T_A_17", statement: "カシューナッツは、リンゴのような果実の先端に外側を向いて実る。", type: "true", set: "A" },
+    { id: "T_A_18", statement: "世界で最も外食の店舗数が多いチェーン店は、マクドナルドではなくサブウェイである。", type: "true", set: "A" },
+    { id: "T_A_19", statement: "バナナの皮で滑るギャグの起源は、チャップリンの映画である。", type: "true", set: "A" },
+    { id: "T_A_20", statement: "アインシュタインの脳は、死後、彼の主治医によって無断で持ち出され保管されていた。", type: "true", set: "A" }
+  ];
+
+  // 真文（True）ブロックB：20個
+  const true_items_B = [
+    { id: "T_B_01", statement: "モナ・リザには、よく見ると実は眉毛が描かれていない。", type: "true", set: "B" },
+    { id: "T_B_02", statement: "ラクダのコブの中身は水ではなく、ほぼ全て脂肪である。", type: "true", set: "B" },
+    { id: "T_B_03", statement: "ハチドリは、鳥類の中で唯一、後ろ向きに飛行することができる。", type: "true", set: "B" },
+    { id: "T_B_04", statement: "日本の郵便マーク（〒）は、かつて「T」になる予定だった。", type: "true", set: "B" },
+    { id: "T_B_05", statement: "シャチの学名には、ラテン語で「地獄からの魔物」という意味がある。", type: "true", set: "B" },
+    { id: "T_B_06", statement: "クジラの祖先は、大昔は陸上を4本足で歩く哺乳類だった。", type: "true", set: "B" },
+    { id: "T_B_07", statement: "地球上のすべての砂の数より、宇宙にある星の数の方が多い。", type: "true", set: "B" },
+    { id: "T_B_08", statement: "ウサギの耳が長いのは、体内の余分な熱を逃がすためである。", type: "true", set: "B" },
+    { id: "T_B_09", statement: "世界一高いビル「ブルジュ・ハリファ」は、最頂部と地上で気温が約8度違う。", type: "true", set: "B" },
+    { id: "T_B_10", statement: "トウモロコシのひげの数は、粒の数と完全に一致している。", type: "true", set: "B" },
+    { id: "T_B_11", statement: "ギザの大ピラミッドは、元々は真っ白な石灰岩で覆われて輝いていた。", type: "true", set: "B" },
+    { id: "T_B_12", statement: "イルカは眠るとき、左右の目を片方ずつ交互に閉じて眠る。", type: "true", set: "B" },
+    { id: "T_B_13", statement: "世界で最初に作られた自動販売機は、聖水を売るためのものだった。", type: "true", set: "B" },
+    { id: "T_B_14", statement: "アサガオは、太陽の光ではなく「夜の長さ」を感じて開花する。", type: "true", set: "B" },
+    { id: "T_B_15", statement: "アルマジロの甲羅は非常に硬く、銃弾を跳ね返した記録がある。", type: "true", set: "B" },
+    { id: "T_B_16", statement: "サハラ砂漠の総面積は、アメリカ合衆国の国土面積とほぼ同じである。", type: "true", set: "B" },
+    { id: "T_B_17", statement: "タラバガニは、生物学的にはカニではなくヤドカリの仲間である。", type: "true", set: "B" },
+    { id: "T_B_18", statement: "15世紀のヨーロッパでは、黒死病の予防として入浴が禁止されていた時期がある。", type: "true", set: "B" },
+    { id: "T_B_19", statement: "地球のコア（中心部）には、地球全体をすっぽり覆えるほどの金が埋まっている。", type: "true", set: "B" },
+    { id: "T_B_20", statement: "チーターは足が速いが、全力疾走できるのは約400メートルが限界である。", type: "true", set: "B" }
+  ];
+
+  // 偽文（False）ブロックA：20個
+  const false_items_A = [
+    { id: "F_A_01", statement: "世界で最も貯水量の多い人工ダムはロシアに存在する。", type: "false", set: "A" },
+    { id: "F_A_02", statement: "ライオンの方向は、最長で15キロメートル先まで届く。", type: "false", set: "A" },
+    { id: "F_A_03", statement: "エベレストの山頂では、水は摂氏50度で沸騰する。", type: "false", set: "A" },
+    { id: "F_A_04", statement: "タコの脳は、8本の足の先端に1つずつ分散して存在する。", type: "false", set: "A" },
+    { id: "F_A_05", statement: "人類の歴史上、最も売れた本はシェイクスピアの『ハムレット』である。", type: "false", set: "A" },
+    { id: "F_A_06", statement: "マリー・アントワネットの実際の身長は140cm台前半の小柄だった。", type: "false", set: "A" },
+    { id: "F_A_07", statement: "ダイヤモンドは、地球上で唯一、高熱のマグマでも絶対に溶けない物質である。", type: "false", set: "A" },
+    { id: "F_A_08", statement: "万里の長城は、宇宙空間（月面）から肉眼で見える唯一の建造物である。", type: "false", set: "A" },
+    { id: "F_A_09", statement: "ヒマワリの花は、完全に成長した後も1日中ずっと太陽を追いかけて動く。", type: "false", set: "A" },
+    { id: "F_A_10", statement: "バミューダ海域での飛行機失踪率は、他の一般的な海域の約10倍である。", type: "false", set: "A" },
+    { id: "F_A_11", statement: "ナポレオンが常に右手を上着に入れているのは、胃潰瘍の痛みを隠すためだった。", type: "false", set: "A" },
+    { id: "F_A_12", statement: "ガラスは極めて硬い液体であるため、100年経つと自重で下側が厚くなる。", type: "false", set: "A" },
+    { id: "F_A_13", statement: "人間の脳は、一生の中で全体の約10%しか使われていない。", type: "false", set: "A" },
+    { id: "F_A_14", statement: "金魚の記憶力は非常に短く、約3秒前の出来事しか覚えていられない。", type: "false", set: "A" },
+    { id: "F_A_15", statement: "バナナの皮には微量の麻薬成分が含まれており、乾燥させて吸うと幻覚を見る。", type: "false", set: "A" },
+    { id: "F_A_16", statement: "世界で最初にインターネット接続に成功した国はイギリスである。", type: "false", set: "A" },
+    { id: "F_A_17", statement: "コウモリは完全な盲目であり、視界ではなく超音波だけで世界を認識している。", type: "false", set: "A" },
+    { id: "F_A_18", statement: "トマトは18世紀まで、ヨーロッパでは猛毒の植物として恐れられ誰も食べなかった。", type: "false", set: "A" },
+    { id: "F_A_19", statement: "コカ・コーラはアメリカのバージニア州発祥である。", type: "false", set: "A" },
+    { id: "F_A_20", statement: "アザラシとアシカの最大の違いは、主食が魚か甲殻類かという点である。", type: "false", set: "A" }
+  ];
+
+  // 偽文（False）ブロックB：20個
+  const false_items_B = [
+    { id: "F_B_01", statement: "アインシュタインは数学の天才だったが、大学入試では歴史の点数が足りず浪人した。", type: "false", set: "B" },
+    { id: "F_B_02", statement: "舌の場所によって、甘味、酸味、塩味、苦味を感じるエリアが完全に分かれている。", type: "false", set: "B" },
+    { id: "F_B_03", statement: "カメレオンは、周囲の背景の「色」を直接目で見て、皮膚の色を完全に一致させる。", type: "false", set: "B" },
+    { id: "F_B_04", statement: "ワニは興奮すると、目から塩分を含んだ本当の涙を流して泣く。", type: "false", set: "B" },
+    { id: "F_B_05", statement: "犬の年齢を人間に換算する場合、一律で「犬の年齢 × 7倍」にするのが最も正確である。", type: "false", set: "B" },
+    { id: "F_B_06", statement: "ダチョウは敵に襲われてパニックになると、砂の中に頭を突っ込んで隠れる習性がある。", type: "false", set: "B" },
+    { id: "F_B_07", statement: "自由の女神像は最初から緑色であり、これは平和を表す特別な染料の色である。", type: "false", set: "B" },
+    { id: "F_B_08", statement: "ギネス世界記録において、最も多くの人が同時に踊った曲はマイケル・ジャクソンの『スリラー』である。", type: "false", set: "B" },
+    { id: "F_B_09", statement: "地球の地殻を構成する元素の中で、最も多く存在しているのは「鉄」である。", type: "false", set: "B" },
+    { id: "F_B_10", statement: "モーツァルトの音楽を胎児に聴かせると、子供のIQが有意に上昇する。", type: "false", set: "B" },
+    { id: "F_B_11", statement: "サメは一生の間に、最大で約500本前後の歯を生え替わらせる。", type: "false", set: "B" },
+    { id: "F_B_12", statement: "日本の富士山は、世界三大独立峰の第2位にランクインしている。", type: "false", set: "B" },
+    { id: "F_B_13", statement: "ペンギンは非常に寒さに強いため、北極と南極の両方に同じ種類が生息している。", type: "false", set: "B" },
+    { id: "F_B_14", statement: "飛行機の窓に小さな穴が開いているのは、万が一の時にそこから酸素を吸入するためである。", type: "false", set: "B" },
+    { id: "F_B_15", statement: "コーヒー豆は、焙煎（ロースト）の時間が長い深煎りほどカフェイン量が大幅に増加する。", type: "false", set: "B" },
+    { id: "F_B_16", statement: "フランスの首都パリは、市内の全域で24時間、路上での喫煙が法律で厳格に禁止されている。", type: "false", set: "B" },
+    { id: "F_B_17", statement: "チョコレートを食べすぎると鼻血が出るのは、カカオに含まれるポリフェノールが急激に血圧を上げるからである。", type: "false", set: "B" },
+    { id: "F_B_18", statement: "トウガラシの辛さの主成分であるカプサイシンは、脂肪を直接燃焼させる強い化学作用を持つ。", type: "false", set: "B" },
+    { id: "F_B_19", statement: "世界で最も多くの島を持つ国はインドネシアである。", type: "false", set: "B" },
+    { id: "F_B_20", statement: "睡眠中に人間が蜘蛛を吞み込んでしまう確率は、年間平均で約8匹である。", type: "false", set: "B" }
+  ];
+
+  // 各ブロック（Trueから10問、Falseから10問）を無作為抽出して合計20問の学習用刺激を作成
+  const sampled_true = (participant_group === 'X') ? 
+    jsPsych.randomization.sampleWithoutReplacement(true_items_A, 10) : 
+    jsPsych.randomization.sampleWithoutReplacement(true_items_B, 10);
+
+  const sampled_false = (participant_group === 'X') ? 
+    jsPsych.randomization.sampleWithoutReplacement(false_items_A, 10) : 
+    jsPsych.randomization.sampleWithoutReplacement(false_items_B, 10);
+
+  let exposure_stimuli = [...sampled_true, ...sampled_false];
+  exposure_stimuli = jsPsych.randomization.shuffle(exposure_stimuli);
+
+  // テストフェーズ用の問題選定
+  const unexposed_true = (participant_group === 'X') ? 
+    true_items_A.filter(x => !sampled_true.includes(x)) : 
+    true_items_B.filter(x => !sampled_true.includes(x));
+
+  const unexposed_false = (participant_group === 'X') ? 
+    false_items_A.filter(x => !sampled_false.includes(x)) : 
+    false_items_B.filter(x => !sampled_false.includes(x));
+
+  let test_stimuli = [...sampled_true, ...sampled_false, ...unexposed_true, ...unexposed_false];
+  test_stimuli = jsPsych.randomization.shuffle(test_stimuli);
+
+  const fixation = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<div style="font-size: 60px; text-align: center;">+</div>',
+    choices: "NO_KEYS",
+    trial_duration: 500
+  };
+
+
+  // ==========================================
+  // 3. タイムラインの組み立て
+  // ==========================================
+
+  // --- ① 導入・教示1（同意画面） ---
+  const instructions_1 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <h2 class="instruction-title">【実験の目的と概要】</h2>
+      <p>本実験では、<b>「SNSにおけるテキスト情報の視認性と読みやすさに関する調査」</b>を行います。現代社会において、私たちは日常的にSNS等で様々な短文に触れています。それらの文章が、フォントや文脈、扱われるトピック（話題）によって、読み手にどのように処理され、どの程度「読みやすい」と感じられるかを検討することが本研究の目的です。</p>
+      <p>実験は大きく分けて3つのフェーズ（前半の読みやすさ評価、数分間の簡単な休憩課題、後半の文章評価）で構成されており、所要時間は全体で約10〜15分程度です。</p>
+
+      <div class="section-title">【実験への参加にあたっての注意・同意事項】</div>
+      <ul>
+        <li><b>環境の確保:</b> 途中で中断せず、静かで集中できる環境で、一気に最後までご回答ください。スマートフォンの通知などはオフにすることをお勧めします。</li>
+        <li><span class="alert-text">ブラウザの操作:</span> 実験の途中でブラウザの「戻る」ボタンを押したり、ページをリロード（再読み込み）したりしないでください。実験が強制終了し、データが保存されなくなります。</li>
+        <li><b>データの取り扱い:</b> 取得されたデータは個人が特定できない形で統計的に処理され、卒業論文の執筆および学術的な目的以外には一切使用されません。また、途中で気分が悪くなった場合などは、いつでもブラウザを閉じることで実験を中断できます。</li>
+      </ul>
+      <p>上記の内容を確認し、実験に参加することに同意いただける場合は、下の「同意して実験を始める」ボタンを押して次へ進んでください。</p>
+    `,
+    choices: ['同意して実験を始める'],
+    button_html: '<div class="center-box instruction-btn"><button class="jspsych-btn">%choice%</button></div>'
+  };
+  timeline.push(instructions_1);
+
+
+  // --- ② 学習フェーズ直前の教示（フェーズ1） ---
+  const instructions_2 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <h2 class="instruction-title">【フェーズ1：文章の読みやすさ評価】</h2>
+      <p>これから画面に、SNSの投稿を模した様々な文章（トリビアや雑学に関する短文）が1つずつ提示されます。</p>
+      <p>各試行は以下の流れで進行します。</p>
+      <ol>
+        <li>画面中央に <b>「＋」</b>（注視点）が小さく表示されます。</li>
+        <li>その後、文章が表示されます。まずは内容をよく読んでください。</li>
+        <li>文章が表示されてから3秒後に、画面下部に<b>「この文章はSNSの投稿として読みやすかったですか？」</b>という質問と選択肢が表示されます。</li>
+        <li>あなたの直感に最も近いものを、選択肢のボタンから選んでクリックしてください。ボタンを押すと次の文章へ進みます。</li>
+      </ol>
+      <p>提示される文章は全部で<b>20個</b>です。それでは、準備ができたら下のボタンを押して始めてください。</p>
+    `,
+    choices: ['フェーズ1を開始する'],
+    button_html: '<div class="center-box instruction-btn"><button class="jspsych-btn">%choice%</button></div>'
+  };
+  timeline.push(instructions_2);
+
+
+  // --- ③ 学習フェーズ（Exposure Phase） ---
+  exposure_stimuli.forEach(item => {
+    timeline.push(fixation);
+
+    const exposure_trial = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <div class="stimulus-text">${item.statement}</div>
+        <div id="delayed-content" class="button-area hidden">
+          <p class="question-text">Q. この文章はSNSの投稿として読みやすかったですか？</p>
+        </div>
+      `,
+      choices: ['1非常に読みにくい', 
+        '2やや読みにくい', 
+        '3どちらともいえない', 
+        '4やや読みやすい', 
+        '5非常に読みやすい'
+      ],
+      button_html: '<button class="jspsych-btn">%choice%</button>',
+      on_load: function() {
+        const btnGroup = document.querySelector('.jspsych-html-button-response-btngroup');
+        if (btnGroup) {
+          btnGroup.classList.add('jspsych-btn-group');
+        }
+        
+        setTimeout(function() {
+          const target = document.getElementById('delayed-content');
+          if (target) {
+            target.classList.remove('hidden');
+          }
+        }, 3000);
+      },
+      data: {
+        phase: 'exposure',
+        item_id: item.id,
+        stimulus_type: item.type,
+        stimulus_set: item.set,
+        condition: 'repeated'
+      }
+    };
+    timeline.push(exposure_trial);
+  });
+
+
+  // --- ④ カバーストーリーに沿った妨害課題（フェーズ2） ---
+  const filler_instructions = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <h2 class="instruction-title">【フェーズ2：SNS画像の色彩・デザイン評価】</h2>
+      <p>前半の「文章の読みやすさ評価」へのご協力ありがとうございました。</p>
+      <p>SNSの投稿において、テキスト（文字情報）と同じくらい重要なのが「視覚情報（画像や配色）」です。そこで、次のフェーズ（文章評価）に進む前に、<b>休憩を兼ねて、タイムライン上でよく使われるカラーパレット（色合い）の好ましさに関する調査</b>を行います。</p>
+      <p>これからいくつかの色彩セットが表示されます。「この配色は、SNSの画面上で目を引きやすい（好ましい）デザインだと思いますか？」という質問に対し、あなたの直感で回答してください（全部で5パターンあります）。</p>
+    `,
+    choices: ['フェーズ2を開始する'],
+    button_html: '<div class="center-box instruction-btn"><button class="jspsych-btn">%choice%</button></div>'
+  };
+  timeline.push(filler_instructions);
+
+  // 妨害課題のカラーパレット
+  const color_palettes = [
+    { colors: ['#ff6b6b', '#feca57', '#ffffff'] },
+    { colors: ['#1dd1a1', '#10ac84', '#222f3e'] },
+    { colors: ['#54a0ff', '#5f27cd', '#f5f6fa'] },
+    { colors: ['#00d2d3', '#ff9ff3', '#ffffff'] },
+    { colors: ['#ee5253', '#0a3d62', '#f1f2f6'] }
+  ];
+
+  color_palettes.forEach((palette, idx) => {
+    timeline.push(fixation);
+
+    let color_html = '<div class="center-box" style="margin: 40px 0;">';
+    palette.colors.forEach(col => {
+      color_html += '<div class="color-box" style="background-color: ' + col + ';"></div>';
+    });
+    color_html += '</div>';
+
+    const filler_trial = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        ${color_html}
+        <p class="question-text">Q. この配色は、SNS上で目を引きやすい（好ましい）と思いますか？</p>
+      `,
+      choices: [
+        '1<span class="btn-label" translate="no">全くそう<br>思わない</span>', 
+        '2<span class="btn-label" translate="no">あまりそう<br>思わない</span>', 
+        '3<span class="btn-label" translate="no">どちらとも<br>いえない</span>', 
+        '4<span class="btn-label" translate="no">ややそう<br>思う</span>', 
+        '5<span class="btn-label" translate="no">非常にそう<br>思う</span>'
+      ],
+      button_html: '<button class="jspsych-btn">%choice%</button>',
+      on_load: function() {
+        const btnGroup = document.querySelector('.jspsych-html-button-response-btngroup');
+        if (btnGroup) {
+          btnGroup.classList.add('jspsych-btn-group');
+        }
+      },
+      data: { phase: 'filler', item_id: `filler_${idx+1}` }
+    };
+    timeline.push(filler_trial);
+  });
+
+
+  // --- ⑤ テストフェーズの教示（フェーズ3） ---
+  const instructions_4 = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <h2 class="instruction-title">【フェーズ3：テキスト情報の印象評価】</h2>
+      <p>休憩課題へのご協力ありがとうございました。ここからが最後のフェーズになります。</p>
+      <p>これから画面に、再び様々な文章（短文）が1つずつ表示されます。</p>
+      <p>それぞれの文章について、<b>「その内容がどの程度本当（客観的な事実）だと思うか」</b>を、あなたの直感に従って1から7のボタンで評定してください。</p>
+      <p>提示される文章は全部で<b>40個</b>です。それでは、準備ができたら下のボタンを押して始めてください。</p>
+    `,
+    choices: ['最終フェーズを開始する'],
+    button_html: '<div class="center-box instruction-btn"><button class="jspsych-btn">%choice%</button></div>'
+  };
+  timeline.push(instructions_4);
+
+
+  // --- ⑥ テストフェーズ（Test Phase） ---
+  test_stimuli.forEach(item => {
+    timeline.push(fixation);
+
+    let condition = 'new';
+    if (sampled_true.includes(item) || sampled_false.includes(item)) {
+      condition = 'repeated';
+    }
+
+    const test_trial = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `
+        <div class="stimulus-text">${item.statement}</div>
+        <p class="question-text" style="color: #2c3e50;">Q. この文章の内容は、どの程度本当（事実）だと思いますか？</p>
+      `,
+      choices: [
+        '1<span class="btn-label" translate="no">全く本当だと<br>思わない</span>', 
+        '2<span class="btn-label" translate="no"><br>本当だと思わない</span>', 
+        '3<span class="btn-label" translate="no">どちらかと言えば<br>思わない</span>', 
+        '4<span class="btn-label" translate="no">どちらとも<br>いえない</span>', 
+        '5<span class="btn-label" translate="no">どちらかと言えば<br>思う</span>', 
+        '6<span class="btn-label" translate="no"><br>本当だと思う</span>', 
+        '7<span class="btn-label" translate="no">完全に本当だと<br>思う</span>'
+      ],
+      button_html: '<button class="jspsych-btn">%choice%</button>',
+      on_load: function() {
+        const btnGroup = document.querySelector('.jspsych-html-button-response-btngroup');
+        if (btnGroup) {
+          btnGroup.classList.add('jspsych-btn-group');
+        }
+      },
+      data: {
+        phase: 'test',
+        item_id: item.id,
+        stimulus_type: item.type,
+        stimulus_set: item.set,
+        exposure_condition: condition
+      },
+      on_finish: function(data){
+        data.rating = data.response + 1; 
+      }
+    };
+    timeline.push(test_trial);
+  });
+
+
+  // --- ⑦ 実験終了と自動ダウンロード ---
+  const debrief = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div class="center-box" style="padding: 40px 0;">
+        <h2>実験がすべて終了しました</h2>
+        <p>ご協力、誠にありがとうございました。</p>
+        <p class="alert-text" style="font-size: 18px; margin-top: 20px;">※画面を閉じると、お使いのパソコンに実験データファイル（truth_effect_data.csv）が自動的にダウンロードされます。</p>
+        <p style="color: #7f8c8d; margin-top: 30px;">（何かキーを押すと、データのプレビュー画面に切り替わります）</p>
+      </div>
+    `
+  };
+  timeline.push(debrief);
+
+  jsPsych.run(timeline);
+
+</script>
+</html>
